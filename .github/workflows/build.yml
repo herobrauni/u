@@ -129,6 +129,21 @@ jobs:
           build-args: |
             NVIDIA_SUPPORT=${{ matrix.nvidia_support }}
           oci: false
+          push: false
+
+      - name: Load image into podman
+        run: |
+          # The buildah action creates the image, let's make sure it's available with the expected tag
+          podman images
+          # Ensure the default tag exists for rechunker
+          IMAGE_ID=$(podman images --filter "reference=${{ env.IMAGE_NAME }}${{ matrix.image_suffix }}" --format "{{.ID}}" | head -1)
+          if [ -n "$IMAGE_ID" ]; then
+            podman tag $IMAGE_ID localhost/${{ env.IMAGE_NAME }}${{ matrix.image_suffix }}:${{ env.DEFAULT_TAG }}
+          else
+            echo "ERROR: Built image not found in podman storage"
+            podman images | grep ${{ env.IMAGE_NAME }} || true
+            exit 1
+          fi
 
       - name: Run Rechunker
         id: rechunk
