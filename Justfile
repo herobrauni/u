@@ -100,6 +100,41 @@ build $target_image=image_name $tag=default_tag:
         --tag "${target_image}:${tag}" \
         .
 
+# Build both NVIDIA and non-NVIDIA variants
+[group('Build')]
+build-both $base_image=image_name $tag=default_tag:
+    #!/usr/bin/env bash
+    set -eoux pipefail
+
+    echo "Building both NVIDIA and non-NVIDIA variants..."
+
+    BUILD_ARGS=()
+    if [[ -z "$(git status -s)" ]]; then
+        BUILD_ARGS+=("--build-arg" "SHA_HEAD_SHORT=$(git rev-parse --short HEAD)")
+    fi
+
+    # Build non-NVIDIA variant
+    echo "Building non-NVIDIA variant: ${base_image}:${tag}"
+    podman build \
+        "${BUILD_ARGS[@]}" \
+        --pull=newer \
+        --build-arg NVIDIA_SUPPORT=false \
+        --tag "${base_image}:${tag}" \
+        .
+
+    # Build NVIDIA variant
+    echo "Building NVIDIA variant: ${base_image}-nvidia:${tag}"
+    podman build \
+        "${BUILD_ARGS[@]}" \
+        --pull=newer \
+        --build-arg NVIDIA_SUPPORT=true \
+        --tag "${base_image}-nvidia:${tag}" \
+        .
+
+    echo "Successfully built both variants:"
+    echo "  - ${base_image}:${tag} (non-NVIDIA)"
+    echo "  - ${base_image}-nvidia:${tag} (NVIDIA)"
+
 # Command: _rootful_load_image
 # Description: This script checks if the current user is root or running under sudo. If not, it attempts to resolve the image tag using podman inspect.
 #              If the image is found, it loads it into rootful podman. If the image is not found, it pulls it from the repository.
