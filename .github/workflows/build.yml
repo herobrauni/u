@@ -115,44 +115,22 @@ jobs:
           sep-tags: " "
           sep-annotations: " "
 
-      - name: Build Image
+      - name: Build image
         id: build_image
-        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2
-        with:
-          containerfiles: |
-            ./Containerfile
-          # Postfix image name with -custom to make it a little more descriptive
-          # Syntax: https://docs.github.com/en/actions/learn-github-actions/expressions#format
-          image: ${{ env.IMAGE_NAME }}${{ matrix.image_suffix }}
-          tags: ${{ steps.metadata.outputs.tags }}
-          labels: ${{ steps.metadata.outputs.labels }}
-          build-args: |
-            NVIDIA_SUPPORT=${{ matrix.nvidia_support }}
-          oci: false
-          push: false
-
-      - name: Load image into podman
         run: |
-          # The buildah action creates the image, let's make sure it's available with the expected tag
-          podman images
-          # Ensure the default tag exists for rechunker
-          IMAGE_ID=$(podman images --filter "reference=${{ env.IMAGE_NAME }}${{ matrix.image_suffix }}" --format "{{.ID}}" | head -1)
-          if [ -n "$IMAGE_ID" ]; then
-            podman tag $IMAGE_ID localhost/${{ env.IMAGE_NAME }}${{ matrix.image_suffix }}:${{ env.DEFAULT_TAG }}
-          else
-            echo "ERROR: Built image not found in podman storage"
-            podman images | grep ${{ env.IMAGE_NAME }} || true
-            exit 1
-          fi
+          sudo podman build \
+            --build-arg NVIDIA_SUPPORT=${{ matrix.nvidia_support }} \
+            -t "${{ env.IMAGE_NAME }}${{ matrix.image_suffix }}:${{ env.DEFAULT_TAG }}" \
+            -f ./Containerfile .
 
       - name: Run Rechunker
         id: rechunk
-        uses: hhd-dev/rechunk@f153348d8100c1f504dec435460a0d7baf11a9d2 # v1.1.1
+        uses: hhd-dev/rechunk@5fbe1d3a639615d2548d83bc888360de6267b1a2 # v1.2.4
         with:
-          rechunk: 'ghcr.io/hhd-dev/rechunk:v1.2.4@sha256:8a84bd5a029681aa8db523f927b7c53b5aded9b078b81605ac0a2fedc969f528'
+          rechunk: "ghcr.io/hhd-dev/rechunk:v1.2.4"
           ref: "localhost/${{ env.IMAGE_NAME }}${{ matrix.image_suffix }}:${{ env.DEFAULT_TAG }}"
           prev-ref: "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.image_suffix }}:${{ env.DEFAULT_TAG }}"
-          skip_compression: false
+          skip_compression: true
           labels: ${{ steps.metadata.outputs.labels }}
 
       # This is necessary so that the podman socket can find the rechunked image on its storage
