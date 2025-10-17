@@ -24,25 +24,19 @@ ARG NVIDIA_SUPPORT="false"
 RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=tmpfs,dst=/var \
     --mount=type=tmpfs,dst=/tmp \
-    --mount=type=cache,dst=/var/cache \
-    --mount=type=cache,dst=/var/log \
     --mount=type=secret,id=GITHUB_TOKEN \
     NVIDIA_SUPPORT="${NVIDIA_SUPPORT}" IMAGE_NAME="${IMAGE_NAME}" /ctx/build_files/00-base.sh
 
 RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=tmpfs,dst=/var \
     --mount=type=tmpfs,dst=/tmp \
-    --mount=type=cache,dst=/var/cache \
-    --mount=type=cache,dst=/var/log \
     /ctx/build_files/01-extras.sh
 
 RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=tmpfs,dst=/var \
     --mount=type=tmpfs,dst=/tmp \
-    --mount=type=cache,dst=/var/cache \
-    --mount=type=cache,dst=/var/log \
     /ctx/build_files/99-cleanup.sh
 
 ### LINTING
 ## Verify final image and contents are correct.
-RUN bootc container lint
+RUN rm -rf /var/* && bootc container lint
