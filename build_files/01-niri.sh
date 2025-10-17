@@ -68,3 +68,5 @@ dnf install -y \
     google-noto-color-emoji-fonts \
     google-noto-emoji-fonts \
     glibc-all-langpacks
+
+cp -avf "/ctx/system_files"/. /

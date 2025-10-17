@@ -1,0 +1,18 @@
+hotkey-overlay {
+    skip-at-startup
+}
+environment {
+    DMS_RUN_GREETER "1"
+}
+spawn-at-startup "sh" "-c" "qs -p /etc/xdg/quickshell/dms; niri msg action quit --skip-confirmation"
+debug {
+  keep-max-bpc-unchanged
+}
+gestures {
+   hot-corners {
+     off
+   }
+}
+layout {
+  background-color "#000000"
+}
