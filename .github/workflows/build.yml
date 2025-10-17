@@ -29,6 +29,16 @@ jobs:
   build_push:
     name: Build and push image
     runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        variant: [non-nvidia, nvidia]
+        include:
+          - variant: non-nvidia
+            nvidia_support: "false"
+            image_suffix: ""
+          - variant: nvidia
+            nvidia_support: "true"
+            image_suffix: "-nvidia"
 
     permissions:
       contents: read
@@ -81,9 +91,9 @@ jobs:
           # This generates all the tags for your image, you can add custom tags here too!
           # Default tags are "$DEFAULT_TAG" and "$DEFAULT_TAG.$date".
           tags: |
-            type=raw,value=${{ env.DEFAULT_TAG }}
-            type=raw,value=${{ env.DEFAULT_TAG }}.{{date 'YYYYMMDD'}}
-            type=raw,value={{date 'YYYYMMDD'}}
+            type=raw,value=${{ env.DEFAULT_TAG }}${{ matrix.image_suffix }}
+            type=raw,value=${{ env.DEFAULT_TAG }}${{ matrix.image_suffix }}.{{date 'YYYYMMDD'}}
+            type=raw,value={{date 'YYYYMMDD'}}${{ matrix.image_suffix }}
             type=sha,enable=${{ github.event_name == 'pull_request' }}
             type=ref,event=pr
           labels: |
@@ -113,9 +123,11 @@ jobs:
             ./Containerfile
           # Postfix image name with -custom to make it a little more descriptive
           # Syntax: https://docs.github.com/en/actions/learn-github-actions/expressions#format
-          image: ${{ env.IMAGE_NAME }}
+          image: ${{ env.IMAGE_NAME }}${{ matrix.image_suffix }}
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
+          build-args: |
+            NVIDIA_SUPPORT=${{ matrix.nvidia_support }}
           oci: false
 
       # Rechunk is a script that we use on Universal Blue to make sure there isnt a single huge layer when your image gets published.
