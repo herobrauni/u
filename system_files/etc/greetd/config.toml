@@ -12,6 +12,6 @@ vt = 1
 # The user to run the command as. The privileges this user must have depends
 # on the greeter. A graphical greeter may for example require the user to be
 # in the `video` group.
-user = "greeter"
+user = "greetd"
 
-command = "/etc/greetd/start-dms.sh"⏎                                                                                                
+command = "/etc/greetd/start-dms.sh"
