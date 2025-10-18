@@ -56,7 +56,7 @@ cat /etc/pam.d/greetd
 dnf install -y --setopt=install_weak_deps=False \
     mate-polkit
 
-sed -i "s/After=.*/After=graphical-session.target/" /usr/lib/systemd/user/mate-polkit-agent.service
+# sed -i "s/After=.*/After=graphical-session.target/" /usr/lib/systemd/user/mate-polkit-agent.service
 
 systemctl enable greetd
 systemctl enable firewalld
