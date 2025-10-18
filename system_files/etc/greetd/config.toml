@@ -1,3 +1,6 @@
+[general]
+service = "greetd-spawn"
+
 [terminal]
 # The VT to run the greeter on. Can be "next", "current" or a number
 # designating the VT.
@@ -14,4 +17,4 @@ vt = 1
 # in the `video` group.
 user = "greetd"
 
-command = "/etc/greetd/start-dms.sh"
+command = "niri -c /etc/greetd/dms-niri.kdl"

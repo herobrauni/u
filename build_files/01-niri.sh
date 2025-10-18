@@ -18,6 +18,7 @@ dnf -y --enablerepo copr:copr.fedorainfracloud.org:yalter:niri-git install niri
 dnf -y install \
     brightnessctl \
     chezmoi \
+    rbw \
     ddcutil \
     fastfetch \
     flatpak \
@@ -53,10 +54,9 @@ sed -i '/gnome_keyring.so/ s/-auth/auth/ ; /gnome_keyring.so/ s/-session/session
 cat /etc/pam.d/greetd
 
 dnf install -y --setopt=install_weak_deps=False \
-    kf6-kirigami \
-    polkit-kde
+    mate-polkit
 
-sed -i "s/After=.*/After=graphical-session.target/" /usr/lib/systemd/user/plasma-polkit-agent.service
+sed -i "s/After=.*/After=graphical-session.target/" /usr/lib/systemd/user/mate-polkit-agent.service
 
 systemctl enable greetd
 systemctl enable firewalld
