@@ -34,7 +34,8 @@ dnf -y install \
     nxpwireless-firmware \
     realtek-firmware \
     tiwilink-firmware \
-    firewalld
+    firewalld \
+	kitty
 
 
 dnf -y install \
